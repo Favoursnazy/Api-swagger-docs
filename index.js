@@ -11,13 +11,13 @@ const app = express();
 
 const PORT = process.env.PORT || 4000;
 
-app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerJsDocs));
-app.get("/", (req, res) => {
-  res.json({
-    title: "HNG Stage 3 Paoject",
-    description: "Here is the swagger documentation for the openApis",
-  });
-});
+app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerJsDocs));
+// app.get("/", (req, res) => {
+//   res.json({
+//     title: "HNG Stage 3 Paoject",
+//     description: "Here is the swagger documentation for the openApis",
+//   });
+// });
 
 app.listen(PORT, () => {
   console.log("docs running");
