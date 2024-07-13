@@ -17,6 +17,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "nodemon": "^3.1.4",
+    "oas3-tools": "^2.2.3",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
   }
