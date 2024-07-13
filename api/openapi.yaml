@@ -1,0 +1,1159 @@
+openapi: 3.0.0
+info:
+  title: HNG Stage 3 endpoint definition
+  description: API endpoints for stage 3 task
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Create an account for a new user
+      operationId: authRegisterPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/auth_register_body"
+        required: true
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_409"
+        "422":
+          description: User is missing one or more required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422"
+      x-swagger-router-controller: Authentication
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Logs a registered user in
+      operationId: authLoginPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/auth_login_body"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_401"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_1"
+      x-swagger-router-controller: Authentication
+  /api/change-password:
+    post:
+      tags:
+        - Account management
+      summary: Updates a logged in user's password
+      operationId: apiChange_passwordPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_changepassword_body"
+        required: true
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_1"
+        "422":
+          description: Incorrect password entered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_2"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: AccountManagement
+  /api/profile:
+    get:
+      tags:
+        - Account management
+      summary: User profile
+      description: This endpoint returns the details of the currently logged in user
+      operationId: apiProfileGET
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_2"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: AccountManagement
+    delete:
+      tags:
+        - Account management
+      summary: Delete account
+      description:
+        Deletes a user's account but keeps it for a number of days for
+        revival
+      operationId: apiProfileDELETE
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_3"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_500"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: AccountManagement
+    patch:
+      tags:
+        - Account management
+      summary: Update user account
+      description: Update user details
+      operationId: apiProfilePATCH
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_profile_body"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_4"
+        "422":
+          description: Empty data sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_4"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: AccountManagement
+  /api/organisation:
+    get:
+      tags:
+        - Organisation
+      summary: Get all user's organisations
+      description:
+        Return all organisations a user is part of including both those
+        the user created and others
+      operationId: apiOrganisationGET
+      parameters:
+        - name: creator
+          in: query
+          description:
+            "Returns only organisations a user created if true, only organisations\
+            \ where user is a member if false, all organisations if not specified."
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_5"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+    post:
+      tags:
+        - Organisation
+      summary: Create organisation
+      description: Creates a new organisation for a user
+      operationId: apiOrganisationPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_organisation_body"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201_1"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_3"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+    delete:
+      tags:
+        - Organisation
+      summary: Delete organisation
+      description:
+        "User can only delete organisations they created [NOTE All organistation\
+        \ details will be lost]"
+      operationId: apiOrganisationDELETE
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_6"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_404"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_500"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+    patch:
+      tags:
+        - Organisation
+      summary: Update organisation details
+      description: Update details of an organisation a user created
+      operationId: apiOrganisationPATCH
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_organisation_body_1"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_7"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_4"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_500"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+  /api/organisation/{org_id}/users:
+    post:
+      tags:
+        - Organisation
+      summary: Adds user to organisation
+      description: A user can only add other users to an organisation they created
+      operationId: apiOrganisationOrg_idUsersPOST
+      parameters:
+        - name: org_id
+          in: path
+          description: The organisation to add a new user to
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/org_id_users_body"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_8"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403_1"
+        "404":
+          description: User or Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_404_1"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_409_1"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_5"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+    patch:
+      tags:
+        - Organisation
+      summary: Remove a user from organisation
+      description: A user can only remove other users from organisation they created.
+      operationId: apiOrganisationOrg_idUsersPATCH
+      parameters:
+        - name: org_id
+          in: path
+          description: The organisation to remove the user from
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/org_id_users_body_1"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_9"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_400"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403_2"
+        "404":
+          description: User or Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_404_1"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_6"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+  /api/users/{id}:
+    get:
+      tags:
+        - Organisation
+      summary: Get a user in your organisation
+      description: Returns the proifile the user
+      operationId: apiUsersIdGET
+      parameters:
+        - name: id
+          in: path
+          description: User ID of user to return
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_10"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403_3"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_404_1"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Organisation
+  /api/subcription:
+    get:
+      tags:
+        - Subscription
+      summary: Get all subscriptions
+      description: Returns all subscriptions
+      operationId: apiSubcriptionGET
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_11"
+      x-swagger-router-controller: Subscription
+    post:
+      tags:
+        - Subscription
+      summary: Add a new subscription plan
+      description: SuperAdmnin create a new subscription plan
+      operationId: apiSubcriptionPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/api_subcription_body"
+        required: true
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201_2"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403_4"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_7"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Subscription
+  /api/subscription/{id}:
+    delete:
+      tags:
+        - Subscription
+      summary: Delete subscription plan
+      description: Deletes subscription plan
+      operationId: apiSubscriptionIdDELETE
+      parameters:
+        - name: id
+          in: path
+          description: The subscription plan ID to delete
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_12"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403_5"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_500"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Subscription
+    patch:
+      tags:
+        - Subscription
+      summary: Update a subscription plan
+      description: Admin update a plan they have created before
+      operationId: apiSubscriptionIdPATCH
+      parameters:
+        - name: id
+          in: path
+          description: The subscription plan ID to update
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/subscription_id_body"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_13"
+        "403":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_403_5"
+        "404":
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_404_2"
+        "422":
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_422_8"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Subscription
+  /api/subscribe/{plan_id}:
+    post:
+      tags:
+        - Subscription
+      summary: Subscribe to a plan
+      description: Users can subscribe to a plan already created by admin
+      operationId: apiSubscribePlan_idPOST
+      parameters:
+        - name: plan_id
+          in: path
+          description: ID of the subscription plan to subscribe to.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_14"
+        "404":
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_404_2"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_500"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Subscription
+  /api/notifications:
+    get:
+      tags:
+        - Notification
+      summary: Get user notifications
+      description: Returns all notifications for a user
+      operationId: apiNotificationsGET
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_15"
+      security:
+        - bearerAuth: []
+      x-swagger-router-controller: Notification
+components:
+  schemas:
+    inline_response_422_4:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Enter fields to update
+    inline_response_403_1:
+      type: object
+      properties:
+        message:
+          type: string
+          example: You can only add users to organisation you created.
+    inline_response_422_3:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Name is required to create an organisation
+    inline_response_422_6:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User_id is required to remove user from an organisation
+    inline_response_403_3:
+      type: object
+      properties:
+        message:
+          type: string
+          example: You can only get users in organisations you created.
+    inline_response_422_5:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User_id is required to add user to an organisation
+    inline_response_403_2:
+      type: object
+      properties:
+        message:
+          type: string
+          example: You can only remove users from organisation you created.
+    api_changepassword_body:
+      type: object
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+    inline_response_403_5:
+      type: object
+      properties:
+        message:
+          type: string
+          example: You do not have access this function.
+    inline_response_422_8:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Enter name or price to update plan.
+    inline_response_403_4:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Only an admin can create a subscription plan.
+    inline_response_422_7:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Name and price are required to create a new plan
+    org_id_users_body:
+      required:
+        - user_id
+      type: object
+      properties:
+        user_id:
+          type: string
+    inline_response_409_1:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User is already a member of this organisation
+    inline_response_200_5_data:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Impala golden
+        description:
+          type: string
+          example: Resurrecting faith in mankind
+        creator:
+          type: boolean
+          example: false
+      example:
+        creator: false
+        name: Impala golden
+        description: Resurrecting faith in mankind
+    inline_response_200_11_data:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Basic
+        price:
+          type: integer
+          example: 10
+      example:
+        price: 10
+        name: Basic
+    auth_login_body:
+      type: object
+      properties:
+        email:
+          type: string
+          example: garfield.skuk@gmail.com
+        password:
+          type: string
+          example: "12345"
+    subscription_id_body:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: integer
+          example: 10
+    inline_response_422_2:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Incorrect password entered
+    inline_response_500:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Something went wrong, please try again later"
+    inline_response_422:
+      type: object
+      properties:
+        message:
+          type: string
+          example: First name is required
+    inline_response_422_1:
+      type: object
+      properties:
+        message:
+          type: string
+          example: One or more required fields missing
+    inline_response_200_9:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User removed from organisation successfully
+      example:
+        message: User removed from organisation successfully
+    inline_response_200_5:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Fetched organisation successfully
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/inline_response_200_5_data"
+      example:
+        data:
+          - creator: false
+            name: Impala golden
+            description: Resurrecting faith in mankind
+          - creator: false
+            name: Impala golden
+            description: Resurrecting faith in mankind
+        message: Fetched organisation successfully
+    inline_response_200_6:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Organisation deleted successfully
+      example:
+        message: Organisation deleted successfully
+    inline_response_200_7:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Organisation details updated successfully
+      example:
+        message: Organisation details updated successfully
+    inline_response_200_8:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User added to organisation successfully
+      example:
+        message: User added to organisation successfully
+    api_organisation_body_1:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    inline_response_200_1:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Password changed successfully
+      example:
+        message: Password changed successfully
+    api_profile_body:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+    inline_response_200_10_data:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: Impala
+        last_name:
+          type: string
+          example: Golden
+        phone:
+          type: string
+          example: "1234567"
+        email:
+          type: string
+          example: impala.golden@gmail.com
+      example:
+        phone: "1234567"
+        last_name: Golden
+        first_name: Impala
+        email: impala.golden@gmail.com
+    inline_response_200_2:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/inline_response_200_2_data"
+      example:
+        data:
+          address: address
+          phone: phone
+          last_name: last_name
+          first_name: first_name
+          email: email
+        message: message
+    inline_response_200_3:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Account deleted successfully
+      example:
+        message: Account deleted successfully
+    org_id_users_body_1:
+      required:
+        - user_id
+      type: object
+      properties:
+        user_id:
+          type: string
+    inline_response_200_4:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: message
+    api_organisation_body:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          example: Golf lovers
+        description:
+          type: string
+          example: Association for lovers of golf game
+    inline_response_200_11:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Fetched subscriptions successfully
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/inline_response_200_11_data"
+      example:
+        data:
+          - price: 10
+            name: Basic
+          - price: 10
+            name: Basic
+        message: Fetched subscriptions successfully
+    inline_response_200_10:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Fetched user successfully
+        data:
+          $ref: "#/components/schemas/inline_response_200_10_data"
+      example:
+        data:
+          phone: "1234567"
+          last_name: Golden
+          first_name: Impala
+          email: impala.golden@gmail.com
+        message: Fetched user successfully
+    inline_response_200_13:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Plan updated successfully
+      example:
+        message: Plan updated successfully
+    inline_response_404_2:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Subscription plan not found
+    inline_response_404_1:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User not found
+    inline_response_200_12:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Plan deleted successfully
+      example:
+        message: Plan deleted successfully
+    inline_response_200_15:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Fetched notifications successfully
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/inline_response_200_15_data"
+      example:
+        data:
+          - date: date
+            message: message
+          - date: date
+            message: message
+        message: Fetched notifications successfully
+    inline_response_200_14:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Subscribed successfully
+      example:
+        message: Subscribed successfully
+    inline_response_201:
+      type: object
+      properties:
+        message:
+          type: string
+        token:
+          type: string
+      example:
+        message: message
+        token: token
+    inline_response_200:
+      type: object
+      properties:
+        token:
+          type: string
+        message:
+          type: string
+      example:
+        message: message
+        token: token
+    inline_response_403:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User can only delete organisations they created
+    inline_response_401:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Invalid credential provided
+    inline_response_400:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User is not a member of this organisation
+    inline_response_404:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Organisation not found
+    inline_response_200_15_data:
+      type: object
+      properties:
+        message:
+          type: string
+        date:
+          type: string
+      example:
+        date: date
+        message: message
+    inline_response_409:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Account with the provided email already exists
+    api_subcription_body:
+      required:
+        - name
+        - price
+      type: object
+      properties:
+        name:
+          type: string
+          example: Basic
+        price:
+          type: integer
+          example: 5
+    auth_register_body:
+      required:
+        - email
+        - first_name
+        - last_name
+        - password
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: Garfield
+        last_name:
+          type: string
+          example: Shenko
+        email:
+          type: string
+          example: garfield.shenko@gmail.com
+        password:
+          type: string
+          example: "12345"
+        phone:
+          type: string
+          example: "7060470281"
+    inline_response_201_1:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Organisation created successfully
+      example:
+        message: Organisation created successfully
+    inline_response_201_2:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Plan created successfully
+      example:
+        message: Plan created successfully
+    inline_response_200_2_data:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+      example:
+        address: address
+        phone: phone
+        last_name: last_name
+        first_name: first_name
+        email: email
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
